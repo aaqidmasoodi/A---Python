@@ -3,6 +3,10 @@ import pygame
 import random
 import time
 
+
+# debug
+DEBUG = False
+
 # Constants
 ROWS = 25
 COLS = 25
@@ -14,7 +18,7 @@ WHITE = (255, 255, 255)
 BROWN = (92, 64, 51)
 LIGHT_PINK = (255, 182, 193)
 LIGHT_GREEN = (144, 238, 144)
-BLUE = (190, 190, 255)
+BLUE = (100, 200, 255)
 
 # Pygame Initialization
 pygame.init()
@@ -23,6 +27,18 @@ pygame.display.set_caption("A* Algorithm")
 
 # Path
 path = []
+destinations = []
+# Agent image
+image = pygame.image.load("agent.png")
+image = pygame.transform.scale(image, (CELL_SIZE, CELL_SIZE))
+
+# goal image
+goal = pygame.image.load("goal.png")
+goal = pygame.transform.scale(goal, (CELL_SIZE, CELL_SIZE))
+
+# obstracle / trees
+tree = pygame.image.load("tree_top.png")
+tree = pygame.transform.scale(tree, (CELL_SIZE, CELL_SIZE))
 
 # Spot class
 class Spot:
@@ -34,7 +50,7 @@ class Spot:
         self.h = 0
         self.neighbours = []
         self.previous: Spot = None
-        self.wall = True if random.uniform(0, 1) < 0.2 else False
+        self.wall = True if random.uniform(0, 1) < 0.25 else False
         self.agent = False
 
     def draw(self) -> None:
@@ -42,19 +58,24 @@ class Spot:
         rect = pygame.Rect(self.i * CELL_SIZE, self.j * CELL_SIZE, CELL_SIZE, CELL_SIZE)
         pygame.draw.rect(surface=screen, color=self.color, rect=rect)
 
+        if self.wall:
+            screen.blit(tree, (CELL_SIZE * self.i, CELL_SIZE * self.j))
+
+        if self in destinations:
+            screen.blit(goal, (CELL_SIZE * self.i, CELL_SIZE * self.j))
+
+        if self.agent:
+            screen.blit(image, (CELL_SIZE * self.agent.i, CELL_SIZE * self.agent.j))
+
     def __str__(self) -> str:
         return f'({self.f},{self.g},{self.h})'
     
     @property
     def color(self) -> None:
-        if self.wall:
-            return BROWN
-        elif self.agent:
-            return (255, 165, 0)
-        elif self in path:
+        if self in path:
             return BLUE  # Blue
         else:
-            return WHITE  # White
+            return LIGHT_GREEN  # White
 
 
 # Grid class to manage spots
@@ -116,7 +137,7 @@ class Agent:
 
     def get_path(self, start: Spot, destination: Spot):
 
-        print('Get path was called..')
+        if DEBUG: print('Get path was called..')
 
         self.path = []
         self.i = start.i
@@ -164,20 +185,24 @@ class Agent:
                         if neighbor not in self.open_set:
                             self.open_set.append(neighbor)
 
-        print("No Path was found... ")
+        if DEBUG: print("No Path was found... ")
         return []  # Return an empty path if no path is found
     
     def move_one_step(self, step: Spot):
-        self.grid.spots[self.i][self.j].agent = False
+        screen.blit(image, (200, 150))
+        self.grid.spots[self.i][self.j].agent = None
         self.i = step.i
         self.j = step.j
-        self.grid.spots[self.i][self.j].agent = True
+        self.grid.spots[self.i][self.j].agent = self
 
 
 '''---------SETUP------------'''
 grid: Grid = Grid(rows=ROWS, cols=COLS)  # Initialize the grid once
 grid.populate()
 grid.compute_and_add_spot_neighbours()
+
+
+# TODO COuld be put in a list ? and a loop maybe
 
 agent1: Agent = Agent(grid)
 start1 = grid.spots[random.randint(0, ROWS - 1)][random.randint(0, COLS -1)]
@@ -205,6 +230,8 @@ start4.wall = False
 end4 = grid.spots[random.randint(0, ROWS - 1)][random.randint(0, COLS - 1)]
 end4.wall = False
 
+destinations.extend([end1, end2, end3, end4])
+
 '''-----------END-------------'''
 
 # Main loop
@@ -212,48 +239,60 @@ running = True
 turn = 1  # Keep track of whose turn it is
 while running:
     for event in pygame.event.get():
-        if event.type == pygame.QUIT:  # Check for the quit event
+        if event.type == pygame.QUIT:  
             running = False
 
 
 
     match turn % 4:
         case 1:  # Agent 1's turn
-            path = agent1.get_path(start1, end1)
-            grid.clear()  # Clear after the path is computed
-            if len(agent1.path) > 1:
-                start1 = path.pop(0)
-                start1 = path.pop(0)
-                agent1.move_one_step(start1)  # Move agent 1
-                print('Agent 1 moved.')
+            if (agent1.i, agent1.j) != (end1.i, end1.j):
+                path = agent1.get_path(start1, end1)
+                grid.clear()  # Clear after the path is computed
+                if len(agent1.path) > 1:
+                    start1 = path.pop(0)
+                    start1 = path.pop(0)
+                    agent1.move_one_step(start1)  # Move agent 1
+                    if DEBUG: print('Agent 1 moved.')
+            else:
+                if DEBUG: print("Agent 1 already at Destination...")
         case 2:
-            path = agent2.get_path(start2, end2)
-            grid.clear()  # Clear after the path is computed
-            if len(agent2.path) > 1:
-                start2 = path.pop(0)
-                start2 = path.pop(0)
-                agent2.move_one_step(start2)  # Move agent 2
-                print('Agent 2 moved.')
+            if (agent2.i, agent2.j) != (end2.i, end2.j):
+                path = agent2.get_path(start2, end2)
+                grid.clear()  # Clear after the path is computed
+                if len(agent2.path) > 1:
+                    start2 = path.pop(0)
+                    start2 = path.pop(0)
+                    agent2.move_one_step(start2)  # Move agent 2
+                    if DEBUG: print('Agent 2 moved.')
+            else:
+                if DEBUG: print("Agent 2 already at Destination...")
         case 3:
-            path = agent3.get_path(start3, end3)
-            grid.clear()  # Clear after the path is computed
-            if len(agent3.path) > 1:
-                start3 = path.pop(0)
-                start3 = path.pop(0)
-                agent3.move_one_step(start3)  # Move agent 2
-                print('Agent 3 moved.')     
+            if (agent3.i, agent3.j) != (end3.i, end3.j):
+                path = agent3.get_path(start3, end3)
+                grid.clear()  # Clear after the path is computed
+                if len(agent3.path) > 1:
+                    start3 = path.pop(0)
+                    start3 = path.pop(0)
+                    agent3.move_one_step(start3)  # Move agent 2
+                    if DEBUG: print('Agent 3 moved.')
+            else:
+                if DEBUG: print("Agent 3 already at Destination...")     
         case _:
-            path = agent4.get_path(start4, end4)
-            grid.clear()  # Clear after the path is computed
-            if len(agent4.path) > 1:
-                start4 = path.pop(0)
-                start4 = path.pop(0)
-                agent4.move_one_step(start4)  # Move agent 2
-                print('Agent 4 moved.')                  
+            if (agent4.i, agent4.j) != (end4.i, end4.j): 
+                path = agent4.get_path(start4, end4)
+                grid.clear()  # Clear after the path is computed
+                if len(agent4.path) > 1:
+                    start4 = path.pop(0)
+                    start4 = path.pop(0)
+                    agent4.move_one_step(start4)  # Move agent 2
+                    if DEBUG: print('Agent 4 moved.')   
+            else:
+                if DEBUG: print("Agent 2 already at Destination...")               
 
     grid.show()
     pygame.display.update()
-    time.sleep(0.1)
+    time.sleep(0.5)
 
     turn += 1  # Switch turns
 
