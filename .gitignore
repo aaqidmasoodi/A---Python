@@ -10,9 +10,9 @@
 
 
 # Virtual Environment
-./bin/*
-./include/*
-./lib/*
+./bin/
+./include/
+./lib/
 
 # macOS generated files
 .DS_Store

@@ -7,9 +7,12 @@ import time
 # debug
 DEBUG = False
 
+# FRAME DELAY
+DELAY = 0.1
+
 # Constants
-ROWS = 25
-COLS = 25
+ROWS = 15
+COLS = 15
 WINDOW_SIZE = 800
 CELL_SIZE = WINDOW_SIZE // max(ROWS, COLS)  # Determine cell size based on the window size
 
@@ -313,7 +316,7 @@ while running:
 
     grid.show()
     pygame.display.update()
-    time.sleep(0.1)
+    time.sleep(DELAY)
 
     turn += 1  # Switch turns
 
