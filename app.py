@@ -72,8 +72,6 @@ class Spot:
             screen.blit(goal, (CELL_SIZE * self.i, CELL_SIZE * self.j))
 
 
-
-
     def __str__(self) -> str:
         return f'({self.f},{self.g},{self.h})'
     
