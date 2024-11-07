@@ -20,10 +20,13 @@ LIGHT_PINK = (255, 182, 193)
 LIGHT_GREEN = (144, 238, 144)
 BLUE = (100, 200, 255)
 
+# diagonal
+GO_DIAGONAL = False
+
 # Pygame Initialization
 pygame.init()
 screen = pygame.display.set_mode((WINDOW_SIZE, WINDOW_SIZE))
-pygame.display.set_caption("A* Algorithm")
+pygame.display.set_caption("A* Algorithm | Project 1 Draft python")
 
 # Path
 path = []
@@ -56,7 +59,11 @@ class Spot:
     def draw(self) -> None:
         # Drawing each spot as a rectangle
         rect = pygame.Rect(self.i * CELL_SIZE, self.j * CELL_SIZE, CELL_SIZE, CELL_SIZE)
+
         pygame.draw.rect(surface=screen, color=self.color, rect=rect)
+
+        if self.agent:
+            screen.blit(image, (CELL_SIZE * self.agent.i, CELL_SIZE * self.agent.j))
 
         if self.wall:
             screen.blit(tree, (CELL_SIZE * self.i, CELL_SIZE * self.j))
@@ -64,8 +71,8 @@ class Spot:
         if self in destinations:
             screen.blit(goal, (CELL_SIZE * self.i, CELL_SIZE * self.j))
 
-        if self.agent:
-            screen.blit(image, (CELL_SIZE * self.agent.i, CELL_SIZE * self.agent.j))
+
+
 
     def __str__(self) -> str:
         return f'({self.f},{self.g},{self.h})'
@@ -104,6 +111,10 @@ class Grid:
                     spot.neighbours.append(self.spots[i][j-1])
                 if j < ROWS - 1:  # adding bottom neighbour
                     spot.neighbours.append(self.spots[i][j+1])
+
+                if GO_DIAGONAL:
+                    # TODO add diagonal neighbours
+                    pass
 
     def show(self) -> None:
         # Draw each Spot in the grid
@@ -203,30 +214,42 @@ grid.compute_and_add_spot_neighbours()
 
 
 # TODO COuld be put in a list ? and a loop maybe
-
+# TODO put this in a loop
 agent1: Agent = Agent(grid)
-start1 = grid.spots[random.randint(0, ROWS - 1)][random.randint(0, COLS -1)]
+agent1.i = random.randint(0, ROWS - 1)
+agent1.j = random.randint(0, COLS -1)
+start1 = grid.spots[agent1.i][agent1.j]
 start1.wall = False
+start1.agent = agent1
 end1 = grid.spots[random.randint(0, ROWS - 1)][random.randint(0, COLS - 1)]
 end1.wall = False
 
 agent2: Agent = Agent(grid)
-start2 = grid.spots[random.randint(0, ROWS - 1)][random.randint(0, COLS - 1)]
+agent2.i = random.randint(0, ROWS - 1)
+agent2.j = random.randint(0, COLS - 1)
+start2 = grid.spots[agent2.i][agent2.j]
 start2.wall = False
+start2.agent = agent2
 end2 = grid.spots[random.randint(0, ROWS - 1)][random.randint(0, COLS - 1)]
 end2.wall = False
 
 
 agent3: Agent = Agent(grid)
-start3 = grid.spots[random.randint(0, ROWS - 1)][random.randint(0, COLS - 1)]
+agent3.i = random.randint(0, ROWS - 1)
+agent3.j = random.randint(0, COLS - 1)
+start3 = grid.spots[agent3.i][agent3.j]
 start3.wall = False
+start3.agent = agent3
 end3 = grid.spots[random.randint(0, ROWS - 1)][random.randint(0, COLS - 1)]
 end3.wall = False
 
 
 agent4: Agent = Agent(grid)
-start4 = grid.spots[random.randint(0, ROWS - 1)][random.randint(0, COLS - 1)]
+agent4.i = random.randint(0, ROWS - 1)
+agent4.j = random.randint(0, COLS - 1)
+start4 = grid.spots[agent4.i][agent4.j]
 start4.wall = False
+start4.agent = agent4
 end4 = grid.spots[random.randint(0, ROWS - 1)][random.randint(0, COLS - 1)]
 end4.wall = False
 
@@ -292,7 +315,7 @@ while running:
 
     grid.show()
     pygame.display.update()
-    time.sleep(0.5)
+    time.sleep(0.1)
 
     turn += 1  # Switch turns
 
