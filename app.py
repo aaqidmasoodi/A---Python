@@ -8,11 +8,11 @@ import time
 DEBUG = False
 
 # FRAME DELAY
-DELAY = 0.1
+DELAY = 0.5
 
 # Constants
-ROWS = 15
-COLS = 15
+ROWS = 25
+COLS = 25
 WINDOW_SIZE = 800
 CELL_SIZE = WINDOW_SIZE // max(ROWS, COLS)  # Determine cell size based on the window size
 
